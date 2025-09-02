@@ -22,7 +22,7 @@ router.post('/user/reset-password', resetPassword);
 
 // User management
 //router.post("/user", userController.createUser);
-router.get("/user", userController.getAllUsers);
+router.get("/user/all", userController.getAllUsers);
 router.get("/user/:id", userController.getUserById);
 router.delete("/users/:id", userController.deleteUser);
 
