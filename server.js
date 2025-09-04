@@ -1,8 +1,8 @@
 require("dotenv").config();
-const userRoutes = require("./gamemodules/user/user.routes");
+const userRoutes = require("./src/gamemodules/user/user.routes");
 const express=require('express');
 const app=express();
-const connectDB = require("./config/db");
+const connectDB = require("./src/config/db");
 // Connect to MongoDB
 connectDB();
 
