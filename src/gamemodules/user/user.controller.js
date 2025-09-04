@@ -1,33 +1,32 @@
-const User = require("./user.model"); 
+const User = require("./user.model");
 
 // Create new user
-exports.createUser = async (req, res) => {
+/*exports.createUser = async (req, res) => {
   try {
-    const { name, email, role } = req.body;
+    const { name, email, globalRole } = req.body;
 
-    // Check if user already exists
-    if(!name || !email || !role) {
-      return res.status(400).json({ success: false, message: "All fields are required" });
+    if (!name || !email) {
+      return res.status(400).json({ success: false, message: "Name and Email are required" });
     }
+
     const existingUser = await User.findOne({ email });
     if (existingUser) {
       return res.status(400).json({ success: false, message: "User already exists" });
     }
 
-    const user = await User.create({ name, email, role });
+    const user = await User.create({ name, email, globalRole });
     return res.status(201).json({ success: true, data: user });
   } catch (error) {
     console.error("Error creating user:", error);
     return res.status(500).json({ success: false, message: "Server Error" });
   }
 };
-
-
+*/
 
 // Get all users
 exports.getAllUsers = async (req, res) => {
   try {
-    const users = await User.find(); // Fetch all users
+    const users = await User.find();
     return res.status(200).json({ success: true, data: users });
   } catch (error) {
     console.error("Error fetching users:", error);
@@ -38,7 +37,7 @@ exports.getAllUsers = async (req, res) => {
 // Get single user by ID
 exports.getUserById = async (req, res) => {
   try {
-    const user = await User.findById(req.params.id); // Fetch user by ID
+    const user = await User.findById(req.params.id);
     if (!user) {
       return res.status(404).json({ success: false, message: "User not found" });
     }
@@ -48,17 +47,47 @@ exports.getUserById = async (req, res) => {
     return res.status(500).json({ success: false, message: "Server Error" });
   }
 };
-// Update user
-exports.updateUser = async (req, res) => {
+
+// Subscribe user to a team
+exports.subscribeToTeam = async (req, res) => {
   try {
-    const updates = req.body;
-    const user = await User.findByIdAndUpdate(req.params.id, updates, { new: true });
-    if (!user) {
-      return res.status(404).json({ success: false, message: "User not found" });
+    const { teamId } = req.body;
+    const user = await User.findById(req.params.id);
+
+    if (!user) return res.status(404).json({ success: false, message: "User not found" });
+
+    if (!user.subscribedTeams.includes(teamId)) {
+      user.subscribedTeams.push(teamId);
     }
+
+    await user.save();
     return res.status(200).json({ success: true, data: user });
   } catch (error) {
-    console.error("Error updating user:", error);
+    console.error("Error subscribing to team:", error);
+    return res.status(500).json({ success: false, message: "Server Error" });
+  }
+};
+
+// Assign contextual role (Coach/Player) in a team
+exports.assignTeamRole = async (req, res) => {
+  try {
+    const { teamId, role } = req.body;
+    const user = await User.findById(req.params.id);
+
+    if (!user) return res.status(404).json({ success: false, message: "User not found" });
+
+    // Check if already assigned
+    const existingRole = user.teams.find(t => t.teamId.toString() === teamId);
+    if (existingRole) {
+      existingRole.role = role; // update role
+    } else {
+      user.teams.push({ teamId, role });
+    }
+
+    await user.save();
+    return res.status(200).json({ success: true, data: user });
+  } catch (error) {
+    console.error("Error assigning role:", error);
     return res.status(500).json({ success: false, message: "Server Error" });
   }
 };
