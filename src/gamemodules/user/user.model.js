@@ -37,7 +37,7 @@ const userSchema = new mongoose.Schema(
         },
       },
     ],
-    subscribedTeams: [
+    subscribedTeam: [
       {
         type: mongoose.Schema.Types.ObjectId,
         ref: 'Team',
