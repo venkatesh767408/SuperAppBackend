@@ -1,5 +1,5 @@
 const express = require("express");
-const Team = require(".src/gamemodules/team.model.js");
+const Team = require("./team.model.js");
 
 
 const router = express.Router();
