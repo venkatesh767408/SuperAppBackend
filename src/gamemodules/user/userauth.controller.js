@@ -62,7 +62,7 @@ const verifyRegistration = async (req, res) => {
 
     const token = jwt.sign({ id: user._id, globalRole: user.globalRole }, process.env.JWT_SECRET, { expiresIn: '1h' });
 
-    res.status(201).json({ token });
+    res.status(201).json({ token , name: user.name, email: user.email });
   } catch (error) {
     res.status(500).json({ message: 'Server error' });
   }
@@ -83,7 +83,7 @@ const login = async (req, res) => {
 
     const token = jwt.sign({ id: user._id, globalRole: user.globalRole }, process.env.JWT_SECRET, { expiresIn: '1h' });
 
-    res.status(200).json({ token });
+    res.status(200).json({ token , name: user.name, email: user.email});
   } catch (error) {
     res.status(500).json({ message: 'Server error' });
   }
@@ -147,8 +147,8 @@ const resetPassword = async (req, res) => {
     const user = await User.findById(decoded.id);
     if (!user) return res.status(400).json({ message: 'Invalid token' });
 
-    const salt = await bcrypt.genSalt(10);
-    user.password = await bcrypt.hash(newPassword, salt);
+   
+    user.password = newPassword;
     await user.save();
 
     res.status(200).json({ message: 'Password reset successful' });
